@@ -18,7 +18,7 @@ pub fn day2_p1() {
     for line in br.lines().map_while(Result::ok) {
         let inputs = line
             .split_whitespace() // okay im finally using this function
-            .map(|s| s.parse::<i32>().expect("Could not convert value to u32!"))
+            .map(|s| s.parse::<i32>().expect("Could not convert value to i32!"))
             .collect::<Vec<_>>();
         if check_nums(&inputs[..]) {
             valid_lines += 1;
@@ -65,7 +65,7 @@ pub fn day2_p2() {
         let mut tolerated = false; // If ANY value is removed and it works
         let inputs = line
             .split_whitespace()
-            .map(|s| s.parse::<i32>().expect("Could not convert value to u32!"))
+            .map(|s| s.parse::<i32>().expect("Could not convert value to i32!"))
             .collect::<Vec<_>>();
         let initial = check_nums(&inputs[..]); // basic check for initial first
         if initial {
