@@ -2,7 +2,7 @@
 
 This year, I'm doing AoC in Rust, as I believe I'm still not too familiar with its standard library.
 Some restrictions:
-- Not using ANY crates/libraries outside of libstd and libcore
+- Not using ANY crates/libraries outside of libstd and libcore (+ regex because rust doesn't have it built-in)
 - Commenting on any decisions I make while writing the code
 - Only using standard library documentation, no stackoverflow etc.
 
