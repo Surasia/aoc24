@@ -61,16 +61,11 @@ fn map_into_nodes(pages: &[Vec<u32>]) -> HashMap<u32, Node> {
 
     for page in pages {
         for &val in &[page[0], page[1]] {
-            if !nodes.contains_key(&val) {
-                nodes.insert(
-                    val,
-                    Node {
-                        val,
-                        before: before_map.get(&val).cloned().unwrap_or_default(),
-                        after: after_map.get(&val).cloned().unwrap_or_default(),
-                    },
-                );
-            }
+            nodes.entry(val).or_insert_with(|| Node {
+                val,
+                before: before_map.get(&val).cloned().unwrap_or_default(),
+                after: after_map.get(&val).cloned().unwrap_or_default(),
+            });
         }
     }
     nodes
