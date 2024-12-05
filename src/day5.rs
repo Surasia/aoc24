@@ -49,41 +49,29 @@ fn get_pages_and_rules<R: BufRead>(input: R) -> (Vec<Vec<u32>>, Vec<Vec<u32>>) {
     (pages, rules)
 }
 
-fn map_into_nodes(pages: &Vec<Vec<u32>>) -> HashMap<u32, Node> {
+fn map_into_nodes(pages: &[Vec<u32>]) -> HashMap<u32, Node> {
     let mut nodes = HashMap::new();
+    let mut before_map: HashMap<u32, Vec<u32>> = HashMap::new();
+    let mut after_map: HashMap<u32, Vec<u32>> = HashMap::new();
+
     for page in pages {
-        let after = pages
-            .iter()
-            .filter(|s| s[1] == page[0])
-            .map(|s| s[0])
-            .collect::<Vec<_>>();
-        let before = pages
-            .iter()
-            .filter(|s| s[0] == page[0])
-            .map(|s| s[1])
-            .collect::<Vec<_>>();
-        let n1 = Node {
-            val: page[0],
-            before,
-            after,
-        };
-        let after = pages
-            .iter()
-            .filter(|s| s[1] == page[1])
-            .map(|s| s[0])
-            .collect::<Vec<_>>();
-        let before = pages
-            .iter()
-            .filter(|s| s[0] == page[1])
-            .map(|s| s[1])
-            .collect::<Vec<_>>();
-        let n2 = Node {
-            val: page[1],
-            before,
-            after,
-        };
-        nodes.insert(page[0], n1);
-        nodes.insert(page[1], n2);
+        before_map.entry(page[0]).or_default().push(page[1]);
+        after_map.entry(page[1]).or_default().push(page[0]);
+    }
+
+    for page in pages {
+        for &val in &[page[0], page[1]] {
+            if !nodes.contains_key(&val) {
+                nodes.insert(
+                    val,
+                    Node {
+                        val,
+                        before: before_map.get(&val).cloned().unwrap_or_default(),
+                        after: after_map.get(&val).cloned().unwrap_or_default(),
+                    },
+                );
+            }
+        }
     }
     nodes
 }
