@@ -17,6 +17,16 @@ struct Node {
     after: Vec<u32>,
 }
 
+fn is_valid_rule(rule: &[u32], nodes: &HashMap<u32, Node>) -> bool {
+    rule.windows(2).all(|window| {
+        if let Some(k) = nodes.get(&window[1]) {
+            k.after.contains(&window[0])
+        } else {
+            false
+        }
+    })
+}
+
 fn get_pages_and_rules<R: BufRead>(input: R) -> (Vec<Vec<u32>>, Vec<Vec<u32>>) {
     let mut pages = Vec::new();
     let mut rules = Vec::new();
@@ -84,22 +94,11 @@ pub fn day5_p1() {
     let (pages, rules) = get_pages_and_rules(br);
     let nodes = map_into_nodes(&pages);
 
-    let mut sum = 0;
-    for rule in rules {
-        let mut valid = true;
-        for (idx, i) in rule.iter().enumerate() {
-            let k = nodes.get(i);
-            if let Some(k) = k {
-                if idx != 0 && !k.after.contains(&rule[idx - 1]) {
-                    valid = false;
-                }
-            }
-        }
-        if valid {
-            let midpoint = rule[rule.len() / 2]; // kind of a hacky way to get the middle
-            sum += midpoint;
-        }
-    }
+    let sum: u32 = rules
+        .iter()
+        .filter(|rule| is_valid_rule(rule, &nodes))
+        .map(|rule| rule[rule.len() / 2])
+        .sum();
     println!("Day 5 unordered sum: {sum}");
 }
 
@@ -108,35 +107,18 @@ pub fn day5_p2() {
     let br = BufReader::new(file);
     let (pages, rules) = get_pages_and_rules(br);
     let nodes = map_into_nodes(&pages);
-    let mut sum = 0;
 
-    for mut rule in rules {
-        let mut valid = true;
-        for (idx, i) in rule.iter().enumerate() {
-            let k = nodes.get(i);
-            if let Some(k) = k {
-                if idx != 0 && !k.after.contains(&rule[idx - 1]) {
-                    valid = false;
-                }
-            }
-        }
-        if !valid {
-            rule.sort_by(|s, m| {
-                let k = nodes.get(s);
-                let m = nodes.get(m);
-                if let Some(k) = k {
-                    if let Some(m) = m {
-                        if k.before.contains(&m.val) {
-                            return 0.cmp(&1);
-                        }
-                    }
-                }
-
-                1.cmp(&0) // sort_by requires something that implements "cmp", so...
+    let sum: u32 = rules
+        .into_iter()
+        .filter(|rule| !is_valid_rule(rule, &nodes))
+        .map(|mut rule| {
+            rule.sort_by(|s, m| match (nodes.get(s), nodes.get(m)) {
+                (Some(k), Some(m)) if k.before.contains(&m.val) => 0.cmp(&1),
+                _ => 1.cmp(&0),
             });
-            let midpoint = rule[rule.len() / 2];
-            sum += midpoint;
-        }
-    }
+            rule[rule.len() / 2]
+        })
+        .sum();
+
     println!("Day 5 reordered sum: {sum}");
 }
