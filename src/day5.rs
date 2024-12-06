@@ -1,6 +1,7 @@
 #![deny(clippy::pedantic)]
 #![allow(clippy::module_name_repetitions)]
 use std::{
+    cmp::Ordering,
     collections::HashMap,
     fs::File,
     io::{BufRead, BufReader},
@@ -96,8 +97,8 @@ pub fn day5_p2() {
         .filter(|rule| !is_valid_rule(rule, &nodes))
         .map(|mut rule| {
             rule.sort_by(|s, m| match (nodes.get(s), nodes.get(m)) {
-                (Some(k), Some(m)) if k.before.contains(&m.val) => 0.cmp(&1),
-                _ => 1.cmp(&0),
+                (Some(k), Some(m)) if k.before.contains(&m.val) => Ordering::Less,
+                _ => Ordering::Greater,
             });
             rule[rule.len() / 2]
         })
