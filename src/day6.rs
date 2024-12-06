@@ -94,42 +94,34 @@ fn create_grid(reader: BufReader<File>) -> (Vec<Vec<char>>, GuardPosition) {
     (grid, guard_position)
 }
 
-pub fn day6_p1() {
-    let file = File::open(PATH_TO_INPUT).expect("Failed to open file!");
-    let br = BufReader::new(file);
-    let (grid, mut guard_position) = create_grid(br);
-
+fn calculate_path(grid: &[Vec<char>], guard_position: GuardPosition) -> HashSet<(usize, usize)> {
     let mut all_positions = HashSet::new();
-    all_positions.insert((guard_position.0, guard_position.1));
-    while (guard_position.0 < LINE_COUNT) && (guard_position.1 < LINE_COUNT) {
-        let m = figure_out_guard(&mut guard_position, &grid);
-        if let Some(i) = m {
-            all_positions.insert(i);
+    let mut curr_pos = guard_position;
+
+    all_positions.insert((curr_pos.0, curr_pos.1));
+    while curr_pos.0 < LINE_COUNT && curr_pos.1 < LINE_COUNT {
+        if let Some(pos) = figure_out_guard(&mut curr_pos, grid) {
+            all_positions.insert(pos);
         } else {
             break;
         }
     }
-    println!("Day 6 possible steps: {}", all_positions.len() - 1);
+    all_positions
+}
+
+pub fn day6_p1() {
+    let file = File::open(PATH_TO_INPUT).expect("Failed to open file!");
+    let br = BufReader::new(file);
+    let (grid, guard_position) = create_grid(br);
+
+    let path = calculate_path(&grid, guard_position);
+    println!("Day 6 possible steps: {}", path.len() - 1);
 }
 
 pub fn day6_p2() {
     let file = File::open(PATH_TO_INPUT).expect("Failed to open file!");
     let br = BufReader::new(file);
-    let mut grid = vec![vec![' '; LINE_WIDTH]; LINE_COUNT];
-
-    let mut guard_position = GuardPosition(0, 0, Direction::Up);
-    for (idx, line) in br.lines().map_while(Result::ok).enumerate() {
-        for c in line.char_indices() {
-            match c.1 {
-                '^' => guard_position = GuardPosition(c.0, idx, Direction::Up),
-                '>' => guard_position = GuardPosition(c.0, idx, Direction::Right),
-                '<' => guard_position = GuardPosition(c.0, idx, Direction::Left),
-                'v' => guard_position = GuardPosition(c.0, idx, Direction::Bottom),
-                _ => {}
-            }
-            grid[c.0][idx] = c.1;
-        }
-    }
+    let (grid, guard_position) = create_grid(br);
 
     let start_pos = (guard_position.0, guard_position.1);
     let mut valid_positions = 0;
