@@ -8,3 +8,5 @@ Some restrictions:
 
 Due to my timezone, I'm not able to participate in any leaderboard positions, and don't intend to anyway.
 If you have any suggestions as to how I can improve any of my solutions (which I know, is probably quite a lot), please create a PR.
+
+day 7: don't have time rn. been playing metal gear solid v
